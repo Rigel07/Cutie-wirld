@@ -1,0 +1,4 @@
+Forge 1.20.1 / Java 17
+GitHub Actions builds automatically.
+Manual: gradle build
+Output: build/libs/cutieworld-1.0.0.jar

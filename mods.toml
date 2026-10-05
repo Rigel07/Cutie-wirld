@@ -1,0 +1,21 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+[[mods]]
+modId="cutieworld"
+version="1.0.0"
+displayName="CutieWorld"
+authors="CutieWorld"
+description='''Functional cute structures and creatures for Minecraft 1.20.1.'''
+[[dependencies.cutieworld]]
+modId="forge"
+mandatory=true
+versionRange="[47.3,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.cutieworld]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
