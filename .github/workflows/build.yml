@@ -1,0 +1,87 @@
+```yaml
+name: Build CutieWorld
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+
+      - name: Buscar y descomprimir ZIP
+        shell: bash
+        run: |
+          set -e
+
+          ZIP_FILE=$(find . -maxdepth 2 -type f -name "*.zip" | head -n 1)
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "ERROR: No se encontró ningún archivo ZIP."
+            exit 1
+          fi
+
+          echo "ZIP encontrado: $ZIP_FILE"
+
+          mkdir -p extracted
+
+          unzip -o "$ZIP_FILE" -d extracted
+
+          echo "Contenido descomprimido:"
+          find extracted -maxdepth 3 -type f | head -100
+
+      - name: Localizar proyecto Gradle
+        shell: bash
+        run: |
+          set -e
+
+          PROJECT_DIR=$(find extracted -name "build.gradle" -type f -printf '%h\n' | head -n 1)
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ERROR: No se encontró build.gradle dentro del ZIP."
+            exit 1
+          fi
+
+          echo "Proyecto encontrado en: $PROJECT_DIR"
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+      - name: Compilar mod
+        shell: bash
+        run: |
+          set -e
+
+          cd "$PROJECT_DIR"
+
+          echo "Compilando CutieWorld..."
+
+          gradle build --no-daemon
+
+      - name: Mostrar JAR generado
+        shell: bash
+        run: |
+          echo "JARs generados:"
+          find "$PROJECT_DIR/build/libs" -type f -name "*.jar" -print
+
+      - name: Subir mod compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: CutieWorld-Forge-1.20.1
+          path: ${{ env.PROJECT_DIR }}/build/libs/*.jar
+          if-no-files-found: error
+```
